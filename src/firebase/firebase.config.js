@@ -5,12 +5,12 @@ import { initializeApp } from "firebase/app";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCIuDKQDRnPb71m8q_0BjqJs9c6YYPRMy8",
-  authDomain: "airbnb-bd.firebaseapp.com",
-  projectId: "airbnb-bd",
-  storageBucket: "airbnb-bd.appspot.com",
-  messagingSenderId: "397646597756",
-  appId: "1:397646597756:web:711e4acc347ec8956c43f9"
+  apiKey: import.meta.env.VITE_apiKey,
+  authDomain: import.meta.env.VITE_authDomain,
+  projectId: import.meta.env.VITE_projectId,
+  storageBucket: import.meta.env.VITE_storageBucket,
+  messagingSenderId: import.meta.env.VITE_messagingSenderId,
+  appId: import.meta.env.VITE_appId
 };
 
 // Initialize Firebase
