@@ -1,16 +1,33 @@
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './CheckoutForm.css'
 import useAuth from '../../hooks/useAuth'
 import { ImSpinner9 } from 'react-icons/im'
+import useAxiosSecure from '../../hooks/useAxiosSecure'
+import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 
-const CheckoutForm = ({ bookingInfo, closeModal }) => {
-  const stripe = useStripe()
-  const elements = useElements()
-  const { user } = useAuth()
-  const [cardError, setCardError] = useState('')
-  const [clientSecret, setClientSecret] = useState('')
-  const [processing, setProcessing] = useState(false)
+const CheckoutForm = ({ bookingInfo, closeModal, refetch }) => {
+  const navigate = useNavigate();
+  const stripe = useStripe();
+  const elements = useElements();
+  const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
+  const [cardError, setCardError] = useState('');
+  const [clientSecret, setClientSecret] = useState('');
+  const [processing, setProcessing] = useState(false);
+
+  useEffect(() =>{
+   if( bookingInfo?.price > 1){
+    getClientSecret({price:bookingInfo?.price})
+   }
+  },[])
+  // get clientSecret
+  const getClientSecret= async(price) =>{
+    const {data} =await axiosSecure.post(`/create-payment-intent`, price);
+    console.log(data);
+    setClientSecret(data.clientSecret);
+  }
 
   // Create Payment Intent
 
@@ -39,7 +56,7 @@ const CheckoutForm = ({ bookingInfo, closeModal }) => {
       console.log('payment method', paymentMethod)
     }
 
-    setProcessing(true)
+    setProcessing(true);
 
     const { paymentIntent, error: confirmError } =
       await stripe.confirmCardPayment(clientSecret, {
@@ -60,15 +77,33 @@ const CheckoutForm = ({ bookingInfo, closeModal }) => {
     console.log('payment intent', paymentIntent)
 
     if (paymentIntent.status === 'succeeded') {
-      // save payment information to the server
-      // Update room status in db
+   
       const paymentInfo = {
         ...bookingInfo,
+        roomId:bookingInfo._id,
         transactionId: paymentIntent.id,
         date: new Date(),
       }
-
-      setProcessing(false)
+      delete paymentInfo._id;
+      console.log(paymentInfo);
+      setProcessing(false);
+      try {
+           // save payment information to the server
+        const {data}=   await axiosSecure.post('/booking', paymentInfo);
+        console.log(data)
+          // Update room status in db
+           await axiosSecure.patch(`/room/status/${bookingInfo._id}`, {status:true});
+          //  await axiosSecure.patch(`/room/status/${bookingInfo._id}`, {status:false});
+          
+          // update ui
+          refetch();
+          closeModal();
+          toast.success('Room Booked Successfully')
+          navigate('/dashboard/my-bookings');
+        
+      } catch (error) {
+        console.log(error)
+      }
     }
   }
 
@@ -93,9 +128,10 @@ const CheckoutForm = ({ bookingInfo, closeModal }) => {
         />
         <div className='flex mt-2 justify-around'>
           <button
+           onClick={closeModal}
             type='button'
             className='inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2'
-            onClick={closeModal}
+           
           >
             Cancel
           </button>
