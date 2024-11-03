@@ -1,16 +1,17 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { DateRange } from 'react-date-range'
 import { TbFidgetSpinner } from 'react-icons/tb'
 import { categories } from '../Categories/categoriesData'
 const UpdateRoomForm = ({
   handleSubmit,
-  dates,
+  dates, 
   handleDates,
   loading,
   handleImageUpdate,
   roomData,
   setRoomData,
 }) => {
+ 
   return (
     <div className='w-full min-h-[calc(100vh-40px)] flex flex-col justify-center items-center text-gray-800 rounded-xl bg-gray-50'>
       <form onSubmit={handleSubmit}>
@@ -55,6 +56,7 @@ const UpdateRoomForm = ({
               Category
             </label>
             <select
+              value={roomData.category || ''}
               onChange={event =>
                 setRoomData({ ...roomData, category: event.target.value })
               }
@@ -76,10 +78,13 @@ const UpdateRoomForm = ({
               Select Availability Range
             </label>
             <div className='flex justify-center pt-2'>
-              <DateRange
-                onChange={handleDates}
-                ranges={[dates]}
+            <DateRange 
                 rangeColors={['#F43F5E']}
+                editableDateInputs={true}
+                onChange={item => handleDates(item)}
+                moveRangeOnFirstSelection={false}
+                ranges={dates}
+
               />
             </div>
           </div>
@@ -214,4 +219,4 @@ const UpdateRoomForm = ({
   )
 }
 
-export default UpdateRoomForm
+export default UpdateRoomForm;

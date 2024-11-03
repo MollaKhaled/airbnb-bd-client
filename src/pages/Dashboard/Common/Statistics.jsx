@@ -1,13 +1,19 @@
 import React from 'react'
 import useRole from '../../../hooks/useRole'
 import AdminStatistics from '../../../Statistics/Admin/AdminStatistics';
+import HostStatistics from '../../../Statistics/Host/HostStatistics';
+import GuestStatistics from '../../../Statistics/Guest/GuestStatistics';
+import LoadingSpinner from '../../../components/Shared/LoadingSpinner';
 
 const Statistics = () => {
   const[role, isLoading] = useRole();
+  if(isLoading) return <LoadingSpinner></LoadingSpinner>
   return (
-    <div>
+    <>
       {role ==='admin' && <AdminStatistics></AdminStatistics>}
-    </div>
+      {role ==='host' && <HostStatistics></HostStatistics>}
+      {role ==='guest' && <GuestStatistics></GuestStatistics>}
+    </>
   )
 }
 

@@ -1,7 +1,62 @@
-import { Dialog, Transition } from '@headlessui/react'
-import { Fragment } from 'react'
+import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react'
+import { Fragment, useState } from 'react'
+import UpdateRoomForm from '../Form/UpdateRoomForm'
+import useAxiosSecure from '../../hooks/useAxiosSecure'
+import { imageUpload } from '../../api/utils'
+import toast from 'react-hot-toast'
 
-const UpdateRoomModal = ({ setIsEditModalOpen, isOpen }) => {
+const UpdateRoomModal = ({ setIsEditModalOpen, isOpen, room, refetch }) => {
+  const axiosSecure = useAxiosSecure();
+  const [loading, setLoading] = useState(false);
+  const [roomData, setRoomData] = useState(room);
+  const [dates, setDates] = useState([
+    {
+      startDate: new Date(room?.from),
+      endDate: new Date(room?.to),
+      key: 'selection',
+    }
+  ]);
+  // date range handler
+  const handleDates = (item) => {
+    console.log(item)
+    setDates([item.selection]);
+    setRoomData({...roomData, to:item.selection.endDate , from:item.selection.startDate })
+  };
+  const handleSubmit = async (event) => {
+    setLoading(true);
+    event.preventDefault();
+    const updatedRoomData =Object.assign({}, roomData)
+    delete updatedRoomData._id;
+      console.log(updatedRoomData);
+
+      try {
+        const {data} = await axiosSecure.put(`/room/update/${room?._id}`, updatedRoomData);
+        console.log(data);
+        refetch();
+        setIsEditModalOpen(false);
+        setLoading(false);
+        toast.success('Home info updated')
+      } catch (error) {
+        console.log(error);
+        toast.error(error.message)
+      }
+    }
+  
+
+  // handle image update
+
+  const handleImageUpdate = async(image) => {
+    setLoading(true);
+    try {
+      // update image
+      const image_url =  await imageUpload(image);
+       setRoomData({...room, image:image_url});
+       setLoading(false);
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
@@ -9,7 +64,7 @@ const UpdateRoomModal = ({ setIsEditModalOpen, isOpen }) => {
         className='relative z-10'
         onClose={() => setIsEditModalOpen(false)}
       >
-        <Transition.Child
+        <TransitionChild
           as={Fragment}
           enter='ease-out duration-300'
           enterFrom='opacity-0'
@@ -19,11 +74,11 @@ const UpdateRoomModal = ({ setIsEditModalOpen, isOpen }) => {
           leaveTo='opacity-0'
         >
           <div className='fixed inset-0 bg-black bg-opacity-25' />
-        </Transition.Child>
+        </TransitionChild>
 
         <div className='fixed inset-0 overflow-y-auto'>
           <div className='flex min-h-full items-center justify-center p-4 text-center'>
-            <Transition.Child
+            <TransitionChild
               as={Fragment}
               enter='ease-out duration-300'
               enterFrom='opacity-0 scale-95'
@@ -32,14 +87,25 @@ const UpdateRoomModal = ({ setIsEditModalOpen, isOpen }) => {
               leaveFrom='opacity-100 scale-100'
               leaveTo='opacity-0 scale-95'
             >
-              <Dialog.Panel className='w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all'>
-                <Dialog.Title
+              <DialogPanel className='w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all'>
+                <DialogTitle
                   as='h3'
                   className='text-lg font-medium text-center leading-6 text-gray-900'
                 >
                   Update Room Info
-                </Dialog.Title>
-                <div className='mt-2 w-full'>{/* Update Room Form */}</div>
+                </DialogTitle>
+                <div className='mt-2 w-full'>{/* Update Room Form */}
+                  <UpdateRoomForm
+                    handleSubmit={handleSubmit}
+                    dates={dates}
+                    handleDates={handleDates}
+                    roomData={roomData}
+                    loading={loading}
+                    handleImageUpdate= {handleImageUpdate}
+                    setRoomData={setRoomData}
+                   
+                  ></UpdateRoomForm>
+                </div>
                 <hr className='mt-8 ' />
                 <div className='mt-2 '>
                   <button
@@ -50,8 +116,8 @@ const UpdateRoomModal = ({ setIsEditModalOpen, isOpen }) => {
                     Cancel
                   </button>
                 </div>
-              </Dialog.Panel>
-            </Transition.Child>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </div>
       </Dialog>

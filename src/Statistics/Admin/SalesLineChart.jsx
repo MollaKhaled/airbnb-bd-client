@@ -9,7 +9,7 @@ import LoadingSpinner from '../../components/Shared/LoadingSpinner';
   legend: { position: 'bottom' },
   series: [{ color: '#F43F5E' }],
 }
-const SalesLineChart = ({data}) => {
+const SalesLineChart = ({ data =[]}) => {
   const [loading , setLoading] = useState(true);
   useEffect(()=>{
     setTimeout(()=> setLoading(false), 2000)

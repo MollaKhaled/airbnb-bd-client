@@ -2,9 +2,11 @@ import PropTypes from 'prop-types'
 import { format } from 'date-fns'
 import DeleteModal from '../../Modal/DeleteModal';
 import { useState } from 'react';
+import UpdateRoomModal from '../../Modal/UpdateRoomModal';
 
-const RoomDataRow = ({ room, handleDelete  }) => {
+const RoomDataRow = ({ room, handleDelete, refetch  }) => {
   let [isOpen, setIsOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const closeModal = () => {
     setIsOpen(false);
   }
@@ -62,14 +64,22 @@ const RoomDataRow = ({ room, handleDelete  }) => {
       </td>
       <td className='px-5 py-5 border-b border-gray-200 bg-white text-sm'>
 
-        <span className='relative cursor-pointer inline-block px-3 py-1 font-semibold text-green-900 leading-tight'>
+        <button 
+        onClick={()=>setIsEditModalOpen(true)}
+        className='relative cursor-pointer inline-block px-3 py-1 font-semibold text-green-900 leading-tight'>
           <span
             aria-hidden='true'
             className='absolute inset-0 bg-green-200 opacity-50 rounded-full'
           ></span>
           <span className='relative'>Update</span>
-        </span>
-        {/* Update Modal */}
+        </button>
+       <UpdateRoomModal
+       isOpen={isEditModalOpen}
+       setIsEditModalOpen={setIsEditModalOpen}
+       room={room}
+       refetch={refetch}
+
+       ></UpdateRoomModal>
       </td>
     </tr>
   )

@@ -1,4 +1,5 @@
 import { format } from 'date-fns'
+import UpdateRoomModal from '../../../components/Modal/UpdateRoomModal'
 
 const RoomDataRow = ({ room }) => {
   return (
@@ -50,7 +51,12 @@ const RoomDataRow = ({ room }) => {
             aria-hidden='true'
             className='absolute inset-0 bg-green-200 opacity-50 rounded-full'
           ></span>
-          <span className='relative'>Update</span>
+          <span className='relative'>Update
+            <UpdateRoomModal
+            isOpen={isOpen}
+            
+            ></UpdateRoomModal>
+          </span>
         </span>
       </td>
     </tr>
