@@ -7,7 +7,7 @@ import LoadingSpinner from '../../../components/Shared/LoadingSpinner';
 import toast from 'react-hot-toast';
 
 const MyListings = () => {
-  const {user, } = useAuth();
+  const {user } = useAuth();
   const axiosSecure = useAxiosSecure();
   // Fetch Rooms data
   const { data: rooms = [], isLoading, refetch } = useQuery({
